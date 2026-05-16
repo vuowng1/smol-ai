@@ -357,7 +357,6 @@
     const input = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
 
-    // ÉP BUỘC ĐỊNH HÌNH XƯNG HÔ "ĐỆ SMOL" VÀ "CẬU - TỚ" TRONG SYSTEM INSTRUCTION MẶC ĐỊNH
     const DEFAULT_SYSTEM = "Bạn tên là đệ smol. Bạn là trợ lý ảo phục vụ người dùng. Bạn bắt buộc phải xưng hô là 'đệ smol' hoặc 'đệ' và gọi người dùng là 'cậu'. Giữ phong cách trò chuyện thân thiện kiểu cậu - tớ nhưng cực kỳ giỏi kỹ thuật, giải đáp code chính xác và tối ưu nhất.";
 
     const config = {
@@ -366,7 +365,6 @@
         temperature: localStorage.getItem('ai_temp') || '0.7'
     };
 
-    // Điền cấu hình vào UI Settings
     document.getElementById('set-model').value = config.model;
     document.getElementById('set-system').value = config.system;
     document.getElementById('set-temp').value = config.temperature;
@@ -421,7 +419,6 @@
         return bubble;
     }
 
-    // Hiệu ứng chạy chữ tốc độ chính xác 5 chữ (từ) / giây
     async function typeResponseSmoothly(element, fullText) {
         element.innerHTML = "";
         const words = fullText.split(/(\s+)/);
@@ -435,7 +432,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (word.trim().length > 0) {
-                await new Promise(resolve => setTimeout(resolve, 200)); // 1000ms / 5 = 200ms
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
         }
     }
@@ -447,7 +444,6 @@
         appendMsg('user', text);
         input.value = '';
 
-        // Hiệu ứng ba chấm nháy động lên xuống liên tục
         const loadingHtml = `
             <div class="typing-loader">
                 <span></span>
@@ -457,8 +453,8 @@
         const aiBubble = appendMsg('ai', loadingHtml);
 
         try {
-            // Đã gán cứng URL tuyệt đối để gọi sang cổng backend Python 8000
-            const response = await fetch('http://localhost:8000/api/v1/chat', {
+            // ĐÃ ĐỔI THÀNH ĐƯỜNG DẪN TƯƠNG ĐỐI ĐỂ VERCEL TỰ KẾT NỐI VÀO SERVER.PY QUA VERCEL.JSON
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -482,7 +478,7 @@
                 aiBubble.innerText = "Lỗi phản hồi: " + data.message;
             }
         } catch (e) {
-            aiBubble.innerText = "Mất kết nối tới Core Backend!";
+            aiBubble.innerText = "Mất kết nối tới Core Backend trên Vercel!";
         }
         chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -492,7 +488,7 @@
         memory = [];
         chatBox.innerHTML = `
             <div class="msg-wrapper ai">
-                <div class="msg-bubble">Đã dọn sạch bộ nhớ. Đệ smol haz sẵn sàng nghe lệnh mới của cậu!</div>
+                <div class="msg-bubble">Đã dọn sạch bộ nhớ. Đệ smol sẵn sàng nghe lệnh mới của cậu!</div>
             </div>`;
     }
 
