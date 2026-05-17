@@ -3,64 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMOL ENGINE</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>ERROR ENGINE - SMOL AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0b0f19; color: #c3ccdb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .chat-container { height: calc(100vh - 180px); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
-        .typing-dot { animation: typingAnimation 1.4s infinite both; }
+        /* CSS Thuần - Không sợ lỗi CDN */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: #0b0f19; 
+            color: #c3ccdb; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Menu bên trái */
+        .sidebar {
+            width: 260px;
+            background-color: #0f1422;
+            border-right: 1px solid #1e2640;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .brand {
+            display: flex;
+            items-center: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1e2640;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #fff;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+        .brand i { color: #3b82f6; }
+        .menu-btn {
+            width: 100%;
+            background-color: #1e2538;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .menu-btn:hover { background-color: #28314a; }
+        .clear-btn {
+            width: 100%;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(127, 29, 29, 0.3);
+            border-radius: 8px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .clear-btn:hover { background-color: rgba(239, 68, 68, 0.2); }
+
+        /* Vùng nội dung chính */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+        .header {
+            height: 64px;
+            border-bottom: 1px solid #1e2640;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            background-color: rgba(15, 20, 34, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            margin-right: 8px;
+            display: inline-block;
+        }
+        .status-text {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        /* Khung chat hiển thị tin nhắn */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .message-row.user {
+            justify-content: flex-end;
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .avatar.ai { background-color: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .avatar.user { background-color: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+        
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 16px;
+            max-width: 75%;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .bubble.ai { background-color: #0f1422; border: 1px solid #1e2640; color: #cbd5e1; border-top-left-radius: 0; }
+        .bubble.user { background-color: #2563eb; border: 1px solid #3b82f6; color: #fff; border-top-right-radius: 0; }
+
+        /* Ô nhập dữ liệu */
+        .input-area {
+            padding: 24px;
+            background: linear-gradient(to top, #0b0f19, #0b0f19 70%, transparent);
+        }
+        .input-wrapper {
+            max-width: 896px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: #0f1422;
+            border: 1px solid #1e2640;
+            border-radius: 12px;
+            padding: 8px 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .input-wrapper:focus-within { border-color: #3b82f6; }
+        .input-wrapper input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            padding-right: 50px;
+        }
+        .input-wrapper input::placeholder { color: #4b5563; }
+        .send-btn {
+            position: absolute;
+            right: 12px;
+            background-color: #2563eb;
+            color: #fff;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .send-btn:hover { background-color: #3b82f6; }
+        .send-btn:active { transform: scale(0.95); }
+
+        /* Chấm nhảy ba chấm */
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #9ca3af;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite both;
+        }
         .typing-dot:nth-child(2) { animation-delay: .2s; }
         .typing-dot:nth-child(3) { animation-delay: .4s; }
-        @keyframes typingAnimation { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        @keyframes typing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden">
+<body>
 
-    <div class="w-64 bg-[#0f1422] border-r border-[#1e2640] flex flex-col justify-between p-4 hidden md:flex">
+    <div class="sidebar">
         <div>
-            <div class="flex items-center gap-3 px-2 py-3 border-b border-[#1e2640] mb-4">
-                <i class="fa-solid fa-terminal text-blue-500 text-xl"></i>
-                <span class="font-bold tracking-wider text-white text-lg">ERROR ENGINE</span>
+            <div class="brand">
+                <i class="fa-solid fa-terminal"></i>
+                <span>ERROR ENGINE</span>
             </div>
-            <button class="w-full bg-[#1e2538] text-white rounded-lg px-4 py-2.5 flex items-center gap-3 hover:bg-[#28314a] transition text-sm font-medium">
+            <button class="menu-btn">
                 <i class="fa-regular fa-comment-dots"></i> Khung Trò Chuyện
             </button>
-            <button class="w-full text-gray-400 rounded-lg px-4 py-2.5 flex items-center gap-3 hover:bg-[#151b2e] hover:text-white transition text-sm font-medium mt-1">
-                <i class="fa-solid fa-gear"></i> Cấu Hình Cài Đặt
-            </button>
         </div>
-        <button onclick="clearChat()" class="w-full text-red-400 border border-red-900/30 bg-red-950/10 rounded-lg px-4 py-2.5 flex items-center gap-3 hover:bg-red-950/30 transition text-sm font-medium">
-            <i class="fa-regular fa-trash-can"></i> Xóa Toàn Bộ Nhớ
+        <button onclick="clearChat()" class="clear-btn">
+            <i class="fa-regular fa-trash-can"></i> Xóa Bộ Nhớ
         </button>
     </div>
 
-    <div class="flex-1 flex flex-col justify-between bg-[#0b0f19] relative">
-        <div class="h-16 border-b border-[#1e2640] flex items-center justify-between px-6 bg-[#0f1422]/50 backdrop-blur-sm">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span class="text-xs font-semibold uppercase tracking-widest text-gray-400">Core Engine Activated</span>
+    <div class="main-content">
+        <div class="header">
+            <span class="status-dot"></span>
+            <span class="status-text">Core Engine Activated</span>
+        </div>
+
+        <div id="chatBox" class="chat-container">
+            <div class="message-row">
+                <div class="avatar ai">AI</div>
+                <div class="bubble ai">Đệ smol đã sẵn sàng hầu chuyện cậu rồi đây! Cậu cần đệ giúp gì cứ ra lệnh nha.</div>
             </div>
         </div>
 
-        <div id="chatBox" class="chat-container overflow-y-auto p-6 space-y-6">
-            <div class="flex items-start gap-4">
-                <div class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 text-xs font-bold">AI</div>
-                <div class="bg-[#0f1422] border border-[#1e2640] rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] shadow-sm text-sm text-[#cbd5e1] leading-relaxed">
-                    Đệ smol đã sẵn sàng hầu chuyện cậu rồi đây! Cậu cần đệ giúp gì cứ ra lệnh nha.
-                </div>
-            </div>
-        </div>
-
-        <div class="p-6 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19] to-transparent">
-            <div class="max-w-4xl mx-auto relative flex items-center bg-[#0f1422] border border-[#1e2640] rounded-xl focus-within:border-blue-500 transition-all p-2 px-4 shadow-lg shadow-black/20">
-                <input type="text" id="userInput" onkeydown="if(event.key === 'Enter') sendMessage()" placeholder="Nhập câu hỏi hoặc yêu cầu việc code..." class="w-full bg-transparent text-white outline-none py-2.5 text-sm pr-12 placeholder-gray-500">
-                <button onclick="sendMessage()" class="absolute right-3 bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center hover:bg-blue-500 transition active:scale-95 shadow-md shadow-blue-900/20">
-                    <i class="fa-solid fa-paper-plane text-xs"></i>
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" onkeydown="if(event.key === 'Enter') sendMessage()" placeholder="Nhập câu hỏi hoặc yêu cầu việc code...">
+                <button onclick="sendMessage()" class="send-btn">
+                    <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
         </div>
@@ -71,41 +253,36 @@
         const userInput = document.getElementById('userInput');
 
         function appendMessage(text, isUser = false) {
-            const wrapper = document.createElement('div');
-            wrapper.className = isUser ? "flex items-start gap-4 justify-end" : "flex items-start gap-4";
+            const row = document.createElement('div');
+            row.className = isUser ? "message-row user" : "message-row";
 
-            const avatar = isUser 
-                ? `<div class="w-8 h-8 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0 text-xs font-bold">ME</div>`
-                : `<div class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 text-xs font-bold">AI</div>`;
+            const avatarClass = isUser ? "avatar user" : "avatar ai";
+            const avatarText = isUser ? "ME" : "AI";
+            const bubbleClass = isUser ? "bubble user" : "bubble ai";
 
-            const msgBg = isUser 
-                ? `bg-blue-600 text-white rounded-tr-none border border-blue-500` 
-                : `bg-[#0f1422] border border-[#1e2640] text-[#cbd5e1] rounded-tl-none`;
-
-            const content = `
-                ${isUser ? '' : avatar}
-                <div class="${msgBg} rounded-2xl px-4 py-3 max-w-[80%] text-sm shadow-sm leading-relaxed whitespace-pre-wrap">${text}</div>
-                ${isUser ? avatar : ''}
+            row.innerHTML = `
+                ${isUser ? '' : `<div class="${avatarClass}">${avatarText}</div>`}
+                <div class="${bubbleClass}">${text}</div>
+                ${isUser ? `<div class="${avatarClass}">${avatarText}</div>` : ''}
             `;
             
-            wrapper.innerHTML = content;
-            chatBox.appendChild(wrapper);
+            chatBox.appendChild(row);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         function showTyping() {
-            const wrapper = document.createElement('div');
-            wrapper.id = 'typingIndicator';
-            wrapper.className = "flex items-start gap-4";
-            wrapper.innerHTML = `
-                <div class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 text-xs font-bold">AI</div>
-                <div class="bg-[#0f1422] border border-[#1e2640] rounded-2xl rounded-tl-none px-5 py-3 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
+            const row = document.createElement('div');
+            row.id = 'typingIndicator';
+            row.className = "message-row";
+            row.innerHTML = `
+                <div class="avatar ai">AI</div>
+                <div class="bubble ai" style="display:flex; gap:4px; align-items:center; padding:15px 20px;">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
                 </div>
             `;
-            chatBox.appendChild(wrapper);
+            chatBox.appendChild(row);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
@@ -123,18 +300,16 @@
             showTyping();
 
             try {
-                // Gọi API tới endpoint tương đối trên Vercel
                 const res = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text }) // Gửi đi đúng từ khóa cấu trúc JSON {"message": text}
+                    body: JSON.stringify({ message: text })
                 });
 
                 const data = await res.json();
                 removeTyping();
 
                 if (res.ok) {
-                    // Ưu tiên lấy biến response, nếu không có lấy biến reply
                     const aiReply = data.response || data.reply || JSON.stringify(data);
                     appendMessage(aiReply, false);
                 } else {
